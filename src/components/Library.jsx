@@ -6,6 +6,7 @@ export default function Library() {
     const [newBook, setNewBook] = useState({ name: '', author: '', rating: '' });
     const [updateBook, setUpdateBook] = useState({ book_id: '', name: '', author: '', rating: '' });
     const [deleteId, setDeleteId] = useState('');
+    const [sortCriteria, setSortCriteria] = useState('dateAsc');
 
     // Fetch all books
     useEffect(() => {
@@ -67,6 +68,33 @@ export default function Library() {
         }
     };
 
+    const handleSortChange = (e) => {
+        setSortCriteria(e.target.value);
+    };
+
+    const sortedBooks = [...books].sort((a, b) => {
+        switch (sortCriteria) {
+            case 'dateAsc':
+                return new Date(a.book_id) - new Date(b.book_id); // Oldest to newest
+            case 'dateDesc':
+                return new Date(b.book_id) - new Date(a.book_id); // Newest to oldest
+            case 'titleAsc':
+                return a.name.localeCompare(b.name); // A-Z by title
+            case 'titleDesc':
+                return b.name.localeCompare(a.name); // Z-A by title
+            case 'ratingAsc':
+                return new Date(b.rating) - new Date(a.rating); // Rating by high to low
+            case 'ratingDesc':
+                return  new Date(a.rating) - new Date(b.rating); // Rating by low to high
+            case 'authorAsc':
+                return a.author.localeCompare(b.author); // A-Z by author
+            case 'authorDesc':
+                return b.author.localeCompare(a.author); // Z-A by author        
+            default:
+                return 0;
+        }
+    });
+
     // Reusable fetchBooks method
     const fetchBooks = async () => {
         try {
@@ -81,10 +109,23 @@ export default function Library() {
         <div>
             <h1>Library</h1>
 
+            {/* Sort Order Toggle */}
+            <label htmlFor="sort">Sort by:</label>
+            <select id="sort" value={sortCriteria} onChange={handleSortChange}>
+                <option value="dateAsc">Date (Oldest to Newest)</option>
+                <option value="dateDesc">Date (Newest to Oldest)</option>
+                <option value="titleAsc">Title (A-Z)</option>
+                <option value="titleDesc">Title (Z-A)</option>
+                <option value="ratingAsc">Rating (Highest to Lowest)</option>
+                <option value="ratingDesc">Rating (Lowest to Highest)</option>
+                <option value="authorAsc">Author (A-Z)</option>
+                <option value="authorDesc">Author (Z-A)</option>
+            </select>
+
             {/* Display Books */}
             <h2>Books List</h2>
             <ul>
-                {books.map((book, index) => (
+                {sortedBooks.map((book, index) => (
                     <li key={index} style={{ paddingBottom: '25px' }}>
                         <div>ID: {book.book_id}</div>
                         <div>Name: {book.name}</div>
